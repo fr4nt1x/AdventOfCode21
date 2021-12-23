@@ -1,42 +1,52 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-const NUMBER_STATES = uint(9)
-const STATE_RESET_FISH = uint(6)
-
-func calculate(inputState [NUMBER_STATES]uint, days uint) [NUMBER_STATES]uint {
-	var state [NUMBER_STATES]uint
-	state = inputState
-	for i := uint(0); i < days; i++ {
-		state0 := state[0]
-		for j := uint(1); j < NUMBER_STATES; j++ {
-			state[j-1] = state[j]
-		}
-		state[NUMBER_STATES-1] = state0
-		state[STATE_RESET_FISH] += state0
-	}
-	return state
-}
-
-func getSum(state [NUMBER_STATES]uint) {
+func calculateFuelConsumption(destPos uint, horPositions []uint) uint {
 	sum := uint(0)
-	for _, i := range state {
-		sum += i
+	for _, pos := range horPositions {
+
+		if pos < destPos {
+			sum += destPos - pos
+		} else {
+			sum += pos - destPos
+		}
 	}
-	fmt.Println(sum)
+	return sum
 }
-func getInputState(fishes []uint) [NUMBER_STATES]uint {
-	res := [NUMBER_STATES]uint{0}
-	for _, fish := range fishes {
-		res[fish]++
+
+func calculateFuelConsumptionVariant(destPos uint, horPositions []uint) uint {
+	sum := uint(0)
+	for _, pos := range horPositions {
+		diff := uint(0)
+		if pos < destPos {
+			diff = destPos - pos
+		} else {
+			diff = pos - destPos
+		}
+		sum += (diff * (diff + 1)) / 2
 	}
-	return res
+	return sum
 }
 
 func main() {
-	fishes := GetInput()
-	inputState := getInputState(fishes)
-	getSum(calculate(inputState, 80))
-	getSum(calculate(inputState, 256))
+	horPositions := GetInput()
+	min := ^uint(0)
+	min2 := ^uint(0)
+
+	for i := uint(0); i < uint(len(horPositions)); i++ {
+		res := calculateFuelConsumption(i, horPositions)
+		res2 := calculateFuelConsumptionVariant(i, horPositions)
+		if res < min {
+			min = res
+			fmt.Println(min)
+		}
+		if res2 < min2 {
+			min2 = res2
+			fmt.Println(min2)
+		}
+	}
+	fmt.Println(min, min2)
 }
